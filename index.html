@@ -58,6 +58,9 @@ html,body{background:radial-gradient(circle at 50% -20%,#262237 0,#111217 32%,#0
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0c0d10}::-webkit-scrollbar-thumb{background:#30333c;border:2px solid #0c0d10;border-radius:99px}::selection{background:#7566ed;color:#fff}
 
 .gl-confidence{display:flex!important;gap:12px!important;align-items:center!important;margin:12px 0 18px!important;padding:12px 14px!important;border:1px solid #66592d!important;background:#211e13!important;border-radius:13px!important;color:#e7d994!important}.gl-confidence b{white-space:nowrap!important;font-size:.7rem!important;letter-spacing:.08em!important}.gl-confidence span{font-size:.78rem!important;color:#bcb38c!important}
+
+.gl-futgg-img{display:block!important;width:100%!important;height:190px!important;object-fit:contain!important;object-position:center bottom!important;margin:2px auto 4px!important;position:relative!important;z-index:2!important}
+.gx-p:has(.gl-futgg-img){height:auto!important;min-height:330px!important}
 `;
 
 function hardenRecommendations(d){
@@ -75,6 +78,46 @@ function hardenRecommendations(d){
    el.insertBefore(note,el.firstChild);
  });
 }
+
+
+const GL_FUTGG_BASE="https://www.fut.gg/api/fut";
+const GL_ASSET="https://game-assets.fut.gg/cdn-cgi/image/quality=90,format=auto,width=300/";
+function glNorm(x){return (x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
+function glPick(rows,card){
+ const rating=card.querySelector(".rt")?.textContent.trim();
+ const pos=card.querySelector(".ps")?.textContent.trim();
+ return rows.find(x=>String(x.game)==="26"&&String(x.overall)===rating)||
+        rows.find(x=>String(x.game)==="26")||
+        rows.find(x=>String(x.overall)===rating)||rows[0];
+}
+async function glFetchJson(url){const r=await fetch(url,{credentials:"omit",mode:"cors"});if(!r.ok)throw Error(r.status);return r.json()}
+async function glResolveGx(card){
+ if(card.dataset.glDone)return; card.dataset.glDone="1";
+ const nm=(card.querySelector(".nm")?.textContent||"").trim();
+ let rows=[];
+ try{
+   const hid=(nm.match(/#(\d+)/)||[])[1];
+   if(hid){
+     const j=await glFetchJson(GL_FUTGG_BASE+"/players/v2/all-versions/"+hid+"/");
+     rows=j.data||[];
+   }else{
+     const q=encodeURIComponent(nm);
+     let j;
+     try{j=await glFetchJson(GL_FUTGG_BASE+"/players/26/?search="+q)}catch(_){j=await glFetchJson(GL_FUTGG_BASE+"/players/v2/?game=26&search="+q)}
+     rows=j.data?.results||j.results||j.data||[];
+     if(!Array.isArray(rows))rows=[];
+     rows=rows.filter(x=>glNorm(x.commonName||x.lastName||x.searchableName).includes(glNorm(nm)));
+   }
+   const p=glPick(rows,card); if(!p)return;
+   const path=p.futggCardImagePath||p.simpleCardImagePath||p.cardImagePath||p.imagePath;if(!path)return;
+   const img=card.ownerDocument.createElement("img");img.className="gl-futgg-img";img.alt=p.commonName||nm;img.src=GL_ASSET+path;
+   const head=card.querySelector(".gx-ph"); if(head)head.insertAdjacentElement("afterend",img); else card.prepend(img);
+   if(/^Héros #/.test(nm)){const ne=card.querySelector(".nm");if(ne)ne.textContent=p.commonName||p.nickname||p.lastName||nm}
+ }catch(e){card.dataset.glError=String(e)}
+}
+function glEnhanceCards(d){d.querySelectorAll(".gx-p").forEach(glResolveGx)}
+function glPriceTrace(){}
+function glLivePrices(){}
 
 document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d);setTimeout(()=>{hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d)},800);}catch(e){console.error(e)}})
 </script></body></html>
