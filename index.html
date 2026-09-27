@@ -49,6 +49,13 @@ html,body{background:radial-gradient(circle at 50% -20%,#262237 0,#111217 32%,#0
 .card{border-radius:20px!important;overflow:hidden!important}.card .top{background:linear-gradient(145deg,#20232b,#15171c)!important}.card .nm,.card .t{color:#fff!important}
 .pstats{gap:12px!important}.pstat{border-radius:16px!important}.planner .head{min-height:62px!important}.planner .planres{max-width:760px!important}.toolbar{backdrop-filter:blur(22px)!important;background:rgba(20,22,28,.86)!important}
 @media(max-width:1050px){.setcard{grid-template-columns:1fr!important;row-gap:14px!important}}
+
+/* GalleryLab final polish */
+*{box-sizing:border-box!important}body{letter-spacing:-.01em!important}.wrap{min-height:calc(100vh - 76px)!important}.phead{padding:10px 4px 6px!important}.phead h1{background:linear-gradient(100deg,#fff 20%,#c9c3ff 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}.toolbar{border-radius:20px!important;padding:10px!important}.toolbar input,.toolbar select{border-radius:13px!important}
+.planner{position:relative!important;overflow:hidden!important}.planner:after{content:"";position:absolute!important;width:420px!important;height:420px!important;right:-180px!important;bottom:-300px!important;background:radial-gradient(circle,rgba(85,211,194,.10),transparent 65%)!important;pointer-events:none!important}.planner .head,.planner .pstats,.planner .planres{position:relative!important;z-index:1!important}
+.setcard{cursor:pointer!important}.setcard .btn,.setcard input{cursor:auto!important}.setcard:hover:before{width:5px!important}.setcard:hover:after{background:radial-gradient(circle,rgba(139,124,255,.25),transparent 68%)!important}.setcard .nm,.setcard .t{letter-spacing:-.025em!important}
+.gbox{transition:transform .16s ease,border-color .16s ease!important}.gbox:hover{transform:translateY(-2px)!important;border-color:#444957!important}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0c0d10}::-webkit-scrollbar-thumb{background:#30333c;border:2px solid #0c0d10;border-radius:99px}::selection{background:#7566ed;color:#fff}
 `;
 document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';}catch(e){console.error(e)}})
 </script></body></html>
