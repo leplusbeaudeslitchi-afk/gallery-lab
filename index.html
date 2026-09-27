@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GalleryLab · FC 27</title><style>html,body,#app{width:100%;height:100%;margin:0;border:0;overflow:hidden;background:#f7f6f3}#app{display:block}</style></head><body><iframe id="app" src="/app.html" title="GalleryLab"></iframe><script>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GalleryLab · FC 27</title><style>html,body,#app{width:100%;height:100%;margin:0;border:0;overflow:hidden;background:#f7f6f3}#app{display:block}</style></head><body><iframe id="app" title="GalleryLab"></iframe><script>
 const css=`
 :root,:root[data-theme="dark"],:root[data-theme="light"]{--bg:#f7f6f3!important;--bg2:#f1f0ec!important;--panel:#fff!important;--panel2:#fbfaf8!important;--line:#e5e2dc!important;--ink:#191919!important;--muted:#77736e!important;--field:#fff!important;--accent:#5f57c8!important;--accent-ink:#fff!important;--shadow:0 8px 28px rgba(20,20,20,.055)!important}
 html,body{background:#f7f6f3!important;color:#191919!important;font-family:Inter,Arial,"Helvetica Neue",sans-serif!important;font-size:14px!important}
@@ -99,7 +99,11 @@ function glPick(rows,card){
         rows.find(x=>String(x.game)==="27")||
         rows.find(x=>String(x.overall)===rating)||rows[0];
 }
-async function glFetchJson(url){const r=await fetch(url,{credentials:"omit",mode:"cors"});if(!r.ok)throw Error(r.status);return r.json()}
+async function glFetchJson(url){
+ const path=url.startsWith(GL_FUTGG_BASE)?url.slice("https://www.fut.gg".length):url;
+ const target=url.startsWith(GL_FUTGG_BASE)?"/.netlify/functions/futgg?path="+encodeURIComponent(path):url;
+ const r=await fetch(target,{credentials:"omit"});if(!r.ok)throw Error(r.status);return r.json()
+}
 async function glResolveGx(card){
  if(card.dataset.glDone)return; card.dataset.glDone="1";
  const nm=(card.querySelector(".nm")?.textContent||"").trim();
@@ -128,5 +132,6 @@ function glEnhanceCards(d){d.querySelectorAll(".gx-p").forEach(glResolveGx)}
 function glPriceTrace(){}
 function glLivePrices(){}
 
-document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d);setTimeout(()=>{hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d)},800);}catch(e){console.error(e)}})
+const glFrame=document.getElementById('app');glFrame.addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d);setTimeout(()=>{hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d)},800);}catch(e){console.error(e)}})
+glFrame.src='/app.html';
 </script></body></html>
