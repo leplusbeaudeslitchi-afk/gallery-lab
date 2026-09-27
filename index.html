@@ -35,18 +35,14 @@ frame.addEventListener('load',()=>{
 const norm=s=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 const cache=new Map();
 async function futggPlayer(name){
-  const key=norm(name); if(!key||key.startsWith("heros ")) return null;
-  if(cache.has(key)) return cache.get(key);
-  const p=(async()=>{try{
-    const q=encodeURIComponent(name);
-    const r=await fetch("https://www.fut.gg/players/?search="+q,{mode:"cors"});
-    if(!r.ok)return null; const h=await r.text();
-    const m=h.match(/href=["'](\/players\/\d+-[^"'/?#]+\/?)["']/i); if(!m)return null;
-    const pr=await fetch("https://www.fut.gg"+m[1],{mode:"cors"}); if(!pr.ok)return null;
-    const ph=await pr.text();
-    const im=ph.match(/https:\/\/game-assets\.fut\.gg\/[^"'<> ]*(?:futgg-player-item-card|player-item-card)[^"'<> ]*/i);
-    return im?im[0].replace(/&amp;/g,"&"):null;
-  }catch(e){return null}})(); cache.set(key,p); return p;
+ const key=norm(name); if(!key||key.startsWith("heros ")) return null;
+ if(cache.has(key)) return cache.get(key);
+ const p=(async()=>{try{
+   /* Prefer the public FUT.GG player page through our same-origin static resolver.
+      Browser-side FUT.GG HTML fetches are intentionally no longer required. */
+   const map=await fetch("./futgg-map.json",{cache:"no-store"}).then(r=>r.ok?r.json():({})).catch(()=>({}));
+   return map[key]?.image||null;
+ }catch(e){return null}})(); cache.set(key,p); return p;
 }
 function enhancePlayers(d){
  d.querySelectorAll(".gx-p").forEach(async card=>{
