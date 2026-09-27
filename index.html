@@ -34,15 +34,17 @@ frame.addEventListener('load',()=>{
 /* FC27 live player-card enhancer */
 const norm=s=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 const cache=new Map();
-async function futggPlayer(name){
+let glMapPromise;
+async function futggPlayer(name,rating){
  const key=norm(name); if(!key||key.startsWith("heros ")) return null;
- if(cache.has(key)) return cache.get(key);
+ const ck=key+"|"+(rating||""); if(cache.has(ck)) return cache.get(ck);
  const p=(async()=>{try{
-   /* Prefer the public FUT.GG player page through our same-origin static resolver.
-      Browser-side FUT.GG HTML fetches are intentionally no longer required. */
-   const map=await fetch("./futgg-map.json",{cache:"no-store"}).then(r=>r.ok?r.json():({})).catch(()=>({}));
-   return map[key]?.image||null;
- }catch(e){return null}})(); cache.set(key,p); return p;
+   glMapPromise ||= fetch("./futgg-map.json?ts="+Math.floor(Date.now()/600000),{cache:"no-store"}).then(r=>r.ok?r.json():({})).catch(()=>({}));
+   const map=await glMapPromise, rows=map[key]||[];
+   if(!Array.isArray(rows)) return rows?.image||null;
+   const exact=rows.find(x=>Number(x.rating)===Number(rating));
+   return (exact||rows[0])?.image||null;
+ }catch(e){return null}})(); cache.set(ck,p); return p;
 }
 function enhancePlayers(d){
  d.querySelectorAll(".gx-p").forEach(async card=>{
@@ -51,7 +53,7 @@ function enhancePlayers(d){
    const name=nm.textContent.trim();
    const art=d.createElement("div"); art.className="gl27-art";
    card.insertBefore(art,card.firstChild);
-   const url=await futggPlayer(name);
+   const rating=card.querySelector(".rt")?.textContent.trim(); const url=await futggPlayer(name,rating);
    if(url){const img=d.createElement("img");img.loading="lazy";img.alt=name;img.src=url;art.appendChild(img);card.classList.add("gl27-hasart")}
  });
 }
