@@ -61,6 +61,15 @@ html,body{background:radial-gradient(circle at 50% -20%,#262237 0,#111217 32%,#0
 
 .gl-futgg-img{display:block!important;width:100%!important;height:190px!important;object-fit:contain!important;object-position:center bottom!important;margin:2px auto 4px!important;position:relative!important;z-index:2!important}
 .gx-p:has(.gl-futgg-img){height:auto!important;min-height:330px!important}
+
+/* FUT.GG-first player tiles */
+.gx-p{min-height:390px!important;height:auto!important;display:flex!important;flex-direction:column!important;background:#11141a!important;overflow:hidden!important}
+.gx-p .gx-ph{order:0!important;position:relative!important;z-index:4!important}
+.gx-p .gl-futgg-img{order:1!important;height:245px!important;width:100%!important;object-fit:contain!important;margin:-4px auto -12px!important}
+.gx-p .nm{order:2!important;color:#fff!important;font-size:.9rem!important;font-weight:850!important;margin:5px 10px 0!important;display:block!important}
+.gx-p .gl-futgg-meta{order:3!important;color:#aab1be!important;font-size:.67rem!important;margin:3px 10px 8px!important;min-height:18px!important}
+.gx-p .sub{order:4!important;color:#818996!important;font-size:.66rem!important;margin:0 10px 8px!important}
+.gx-p .ft{order:5!important;margin-top:auto!important}
 `;
 
 function hardenRecommendations(d){
@@ -108,7 +117,7 @@ async function glResolveGx(card){
      if(!Array.isArray(rows))rows=[];
      rows=rows.filter(x=>glNorm(x.commonName||x.lastName||x.searchableName).includes(glNorm(nm)));
    }
-   const p=glPick(rows,card); if(!p)return;
+   const p=glPick(rows,card); if(!p){card.dataset.glDone="";return;}
    const path=p.futggCardImagePath||p.simpleCardImagePath||p.cardImagePath||p.imagePath;if(!path)return;
    const img=card.ownerDocument.createElement("img");img.className="gl-futgg-img";img.alt=p.commonName||nm;img.src=GL_ASSET+path;
    const head=card.querySelector(".gx-ph"); if(head)head.insertAdjacentElement("afterend",img); else card.prepend(img);
