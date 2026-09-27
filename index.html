@@ -86,8 +86,8 @@ function glNorm(x){return (x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,""
 function glPick(rows,card){
  const rating=card.querySelector(".rt")?.textContent.trim();
  const pos=card.querySelector(".ps")?.textContent.trim();
- return rows.find(x=>String(x.game)==="26"&&String(x.overall)===rating)||
-        rows.find(x=>String(x.game)==="26")||
+ return rows.find(x=>String(x.game)==="27"&&String(x.overall)===rating)||
+        rows.find(x=>String(x.game)==="27")||
         rows.find(x=>String(x.overall)===rating)||rows[0];
 }
 async function glFetchJson(url){const r=await fetch(url,{credentials:"omit",mode:"cors"});if(!r.ok)throw Error(r.status);return r.json()}
@@ -103,7 +103,7 @@ async function glResolveGx(card){
    }else{
      const q=encodeURIComponent(nm);
      let j;
-     try{j=await glFetchJson(GL_FUTGG_BASE+"/players/26/?search="+q)}catch(_){j=await glFetchJson(GL_FUTGG_BASE+"/players/v2/?game=26&search="+q)}
+     try{j=await glFetchJson(GL_FUTGG_BASE+"/players/27/?search="+q)}catch(_){j=await glFetchJson(GL_FUTGG_BASE+"/players/v2/?game=27&search="+q)}
      rows=j.data?.results||j.results||j.data||[];
      if(!Array.isArray(rows))rows=[];
      rows=rows.filter(x=>glNorm(x.commonName||x.lastName||x.searchableName).includes(glNorm(nm)));
