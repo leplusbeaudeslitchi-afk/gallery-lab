@@ -76,5 +76,5 @@ function hardenRecommendations(d){
  });
 }
 
-document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);setTimeout(()=>{hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d)},800);}catch(e){console.error(e)}})
+document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d);setTimeout(()=>{hardenRecommendations(d);glEnhanceCards(d);glPriceTrace(d);glLivePrices(d)},800);}catch(e){console.error(e)}})
 </script></body></html>
