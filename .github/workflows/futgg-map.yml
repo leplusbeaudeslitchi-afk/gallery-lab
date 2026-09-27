@@ -9,6 +9,8 @@ on:
     - cron: "17 */6 * * *"
 permissions:
   contents: write
+env:
+  GH_TOKEN: ${{ github.token }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,4 +26,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add futgg-map.json
           git diff --cached --quiet || git commit -m "Refresh FUT.GG FC27 card map"
-          git push
+          git push origin HEAD:main || {
+            echo "Direct push unavailable; uploading through GitHub API"
+            B64=$(base64 -w0 futgg-map.json)
+            SHA=$(gh api repos/$GITHUB_REPOSITORY/contents/futgg-map.json --jq .sha)
+            gh api --method PUT repos/$GITHUB_REPOSITORY/contents/futgg-map.json -f message="Refresh FUT.GG FC27 card map" -f content="$B64" -f sha="$SHA" -f branch="main"
+          }
