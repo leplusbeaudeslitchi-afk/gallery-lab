@@ -123,4 +123,33 @@ async function glFutggResolveByIds(assetId,resourceId){
  }catch(e){}
  return null})(); glFutggByItem.set(k,p); return p;
 }
+
+function glFindIds(card){
+ const ds=card.dataset||{};
+ let assetId=ds.assetId||ds.assetid||ds.playerId||ds.playerid||"";
+ let resourceId=ds.resourceId||ds.resourceid||ds.itemId||ds.itemid||"";
+ // Many GalleryLab placeholder labels already carry the item/resource id.
+ if(!resourceId){
+   const txt=(card.textContent||"");
+   const m=txt.match(/#(\d{5,9})\b/); if(m) resourceId=m[1];
+ }
+ return {assetId,resourceId};
+}
+async function glUpgradeCardByIds(card){
+ if(card.dataset.glIdDone==="1") return;
+ const ids=glFindIds(card); if(!ids.assetId&&!ids.resourceId) return;
+ card.dataset.glIdDone="1";
+ let url=await glFutggResolveByIds(ids.assetId,ids.resourceId);
+ // If assetId isn't exposed but resourceId is a base item, try it as both IDs.
+ if(!url&&ids.resourceId) url=await glFutggResolveByIds(ids.resourceId,ids.resourceId);
+ if(!url){card.dataset.glIdDone="";return}
+ let art=card.querySelector(".gl27-art");
+ if(!art){art=document.createElement("div");art.className="gl27-art";card.prepend(art)}
+ art.innerHTML="";
+ const img=document.createElement("img"); img.loading="lazy"; img.decoding="async"; img.alt="FC 27";
+ img.src=url; img.onerror=()=>{img.remove();card.dataset.glIdDone=""}; art.appendChild(img);
+}
+function glUpgradeAllIds(){document.querySelectorAll(".gx-p").forEach(glUpgradeCardByIds)}
+new MutationObserver(glUpgradeAllIds).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["data-asset-id","data-resource-id","data-player-id","data-item-id"]});
+setTimeout(glUpgradeAllIds,350);
 </script></body></html>
