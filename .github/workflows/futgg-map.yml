@@ -1,0 +1,27 @@
+name: Refresh FUTGG FC27 map
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/build_futgg_map.py"
+      - ".github/workflows/futgg-map.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/build_futgg_map.py
+      - name: Commit refreshed map
+        run: |
+          git config user.name "gallerylab-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add futgg-map.json
+          git diff --cached --quiet || git commit -m "Refresh FUT.GG FC27 card map"
+          git push
