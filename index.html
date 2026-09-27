@@ -104,4 +104,23 @@ function glFocusSets(){
 }
 new MutationObserver(glFocusSets).observe(document.documentElement,{subtree:true,childList:true});
 setTimeout(glFocusSets,250);
+
+const glFutggByItem=new Map();
+async function glFutggResolveByIds(assetId,resourceId){
+ const rid=String(resourceId||"").trim(), aid=String(assetId||"").trim();
+ if(!rid&&!aid) return null;
+ const k=aid+"|"+rid; if(glFutggByItem.has(k)) return glFutggByItem.get(k);
+ const p=(async()=>{try{
+   if(aid){
+     const r=await fetch("https://www.fut.gg/api/fut/players/v2/all-versions/"+encodeURIComponent(aid));
+     if(r.ok){
+       const j=await r.json(), rows=Array.isArray(j)?j:(j.data||j.results||[]);
+       const x=rows.find(v=>String(v.game)==="27"&&String(v.eaId)===rid)||rows.find(v=>String(v.game)==="27");
+       const path=x?.futggCardImagePath||x?.simpleCardImagePath||x?.cardImagePath||x?.imagePath;
+       if(path) return path.startsWith("http")?path:"https://game-assets.fut.gg/"+path.replace(/^\//,"");
+     }
+   }
+ }catch(e){}
+ return null})(); glFutggByItem.set(k,p); return p;
+}
 </script></body></html>
