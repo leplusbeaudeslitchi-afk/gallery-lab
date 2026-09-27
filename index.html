@@ -1,5 +1,12 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090c12"><title>GalleryLab · FC27</title>
-<style>html,body,#app{margin:0;width:100%;height:100%;border:0;background:#090c12}body{overflow:hidden}#app{display:block}</style></head>
+<style>html,body,#app{margin:0;width:100%;height:100%;border:0;background:#090c12}body{overflow:hidden}#app{display:block}
+/* GalleryLab simplified UI */
+#gl-simple-hide{display:none!important}
+body{--gl-muted:#8f9baa}
+.gx-p .gl27-art{min-height:150px}
+.gx-p .gl27-art img{width:100%;height:100%;object-fit:contain}
+@media(max-width:700px){.gx-p .gl27-art{min-height:125px}}
+</style></head>
 <body><iframe id="app" src="./app.html" title="GalleryLab FC27"></iframe>
 <script>
 const frame=document.getElementById('app');
@@ -70,4 +77,17 @@ function installRuntime(d){
  new MutationObserver(()=>enhancePlayers(d)).observe(d.body,{childList:true,subtree:true});
 }
 frame.addEventListener("load",()=>{const d=frame.contentDocument;if(d)installRuntime(d)});
+
+function glSimplify(){
+ const junk=[...document.querySelectorAll("h1,h2,h3,h4,p,button,a,summary,span,div")];
+ const bad=/^(comment ça marche|comment ca marche|aide|faq|guide|bienvenue|pour commencer|mode d'emploi|astuce|conseil)/i;
+ junk.forEach(el=>{const t=(el.textContent||"").trim(); if(t.length<90&&bad.test(t)&&!el.closest(".gx-p")){const box=el.closest("section,.card,.panel,.box,details")||el;box.style.display="none"}});
+ // Keep navigation focused on actual GalleryLab actions.
+ document.querySelectorAll("nav a,aside a,.sidebar a").forEach(a=>{
+   const t=(a.textContent||"").trim();
+   if(/^(aide|faq|comment ça marche|comment ca marche)$/i.test(t)) a.style.display="none";
+ });
+}
+new MutationObserver(glSimplify).observe(document.documentElement,{subtree:true,childList:true});
+setTimeout(glSimplify,200);
 </script></body></html>
