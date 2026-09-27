@@ -56,6 +56,25 @@ html,body{background:radial-gradient(circle at 50% -20%,#262237 0,#111217 32%,#0
 .setcard{cursor:pointer!important}.setcard .btn,.setcard input{cursor:auto!important}.setcard:hover:before{width:5px!important}.setcard:hover:after{background:radial-gradient(circle,rgba(139,124,255,.25),transparent 68%)!important}.setcard .nm,.setcard .t{letter-spacing:-.025em!important}
 .gbox{transition:transform .16s ease,border-color .16s ease!important}.gbox:hover{transform:translateY(-2px)!important;border-color:#444957!important}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0c0d10}::-webkit-scrollbar-thumb{background:#30333c;border:2px solid #0c0d10;border-radius:99px}::selection{background:#7566ed;color:#fff}
+
+.gl-confidence{display:flex!important;gap:12px!important;align-items:center!important;margin:12px 0 18px!important;padding:12px 14px!important;border:1px solid #66592d!important;background:#211e13!important;border-radius:13px!important;color:#e7d994!important}.gl-confidence b{white-space:nowrap!important;font-size:.7rem!important;letter-spacing:.08em!important}.gl-confidence span{font-size:.78rem!important;color:#bcb38c!important}
 `;
-document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';}catch(e){console.error(e)}})
+
+function hardenRecommendations(d){
+ const walker=d.createTreeWalker(d.body,NodeFilter.SHOW_TEXT);
+ const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+ nodes.forEach(n=>{
+   const t=n.nodeValue||"";
+   if(t.includes("Premier proprio à vérifier en jeu")) n.nodeValue=t.replace("Premier proprio à vérifier en jeu","À vérifier en jeu · non confirmé");
+ });
+ const candidates=[...d.querySelectorAll("div,section,details")].filter(el=>/À vérifier en jeu · non confirmé/.test(el.textContent||""));
+ candidates.forEach(el=>{
+   if(el.dataset.safetyMarked)return; el.dataset.safetyMarked="1";
+   const note=d.createElement("div"); note.className="gl-confidence";
+   note.innerHTML='<b>? DONNÉES NON CONFIRMÉES</b><span>Ces gains sont des scénarios conditionnels. Ne dépense rien sur cette base tant que les cartes Premier proprio ne sont pas confirmées en jeu.</span>';
+   el.insertBefore(note,el.firstChild);
+ });
+}
+
+document.getElementById('app').addEventListener('load',function(){try{const d=this.contentDocument,s=d.createElement('style');s.textContent=css;d.head.appendChild(s);const b=d.querySelector('.brand small');if(b)b.textContent='FC 27';hardenRecommendations(d);setTimeout(()=>hardenRecommendations(d),800);}catch(e){console.error(e)}})
 </script></body></html>
