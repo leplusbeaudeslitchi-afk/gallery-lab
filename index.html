@@ -53,14 +53,30 @@ async function futggPlayer(name,rating){
    return (exact||rows[0])?.image||null;
  }catch(e){return null}})(); cache.set(ck,p); return p;
 }
+let glGalleryIds=new Map();
+function glLoadGalleryIds(){
+ try{
+   const rows=frame.contentWindow.eval("typeof MY_GALLERY!=='undefined'?MY_GALLERY:[]")||[];
+   glGalleryIds=new Map(rows.map(r=>[String(r[0]),{resourceId:String(r[0]),assetId:String(r[1])}]));
+ }catch(e){}
+}
+function glIdsForCard(card){
+ const raw=String(card.dataset.playerId||"");
+ const rid=raw.replace(/^g/,"");
+ return glGalleryIds.get(rid)||null;
+}
 function enhancePlayers(d){
+ glLoadGalleryIds();
  d.querySelectorAll(".gx-p").forEach(async card=>{
    if(card.dataset.gl27)return; card.dataset.gl27="1";
    const nm=card.querySelector(".nm"); if(!nm)return;
-   const name=nm.textContent.trim();
+   const name=nm.textContent.trim(), ids=glIdsForCard(card);
+   if(ids){card.dataset.resourceId=ids.resourceId;card.dataset.assetId=ids.assetId}
    const art=d.createElement("div"); art.className="gl27-art";
    card.insertBefore(art,card.firstChild);
-   const rating=card.querySelector(".rt")?.textContent.trim(); const url=await futggPlayer(name,rating);
+   const rating=card.querySelector(".rt")?.textContent.trim();
+   let url=ids?await glFutggResolveByIds(ids.assetId,ids.resourceId):null;
+   if(!url) url=await futggPlayer(name,rating);
    if(url){const img=d.createElement("img");img.loading="lazy";img.alt=name;img.src=url;art.appendChild(img);card.classList.add("gl27-hasart")}
  });
 }
@@ -149,7 +165,7 @@ async function glUpgradeCardByIds(card){
  const img=document.createElement("img"); img.loading="lazy"; img.decoding="async"; img.alt="FC 27";
  img.src=url; img.onerror=()=>{img.remove();card.dataset.glIdDone=""}; art.appendChild(img);
 }
-function glUpgradeAllIds(){document.querySelectorAll(".gx-p").forEach(glUpgradeCardByIds)}
+function glUpgradeAllIds(){const d=frame.contentDocument;if(d)d.querySelectorAll(".gx-p").forEach(glUpgradeCardByIds)}
 new MutationObserver(glUpgradeAllIds).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["data-asset-id","data-resource-id","data-player-id","data-item-id"]});
 setTimeout(glUpgradeAllIds,350);
 </script></body></html>
