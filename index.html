@@ -90,4 +90,18 @@ function glSimplify(){
 }
 new MutationObserver(glSimplify).observe(document.documentElement,{subtree:true,childList:true});
 setTimeout(glSimplify,200);
+
+function glFocusSets(){
+ document.querySelectorAll("nav a,aside a,.sidebar a,button").forEach(a=>{
+   const t=(a.textContent||"").trim();
+   if(/^marché$/i.test(t)||/^marche$/i.test(t)) a.style.display="none";
+ });
+ // Hide standalone market views/sections when identifiable, while preserving price labels inside Set player cards.
+ document.querySelectorAll("[id],[data-page],[data-view]").forEach(el=>{
+   const id=((el.id||"")+" "+(el.getAttribute("data-page")||"")+" "+(el.getAttribute("data-view")||"")).toLowerCase();
+   if(/(^|[-_ ])market|marche|marché/.test(id)&&!el.closest(".gx-p")) el.style.display="none";
+ });
+}
+new MutationObserver(glFocusSets).observe(document.documentElement,{subtree:true,childList:true});
+setTimeout(glFocusSets,250);
 </script></body></html>
